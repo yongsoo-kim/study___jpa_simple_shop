@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    #테스트용은 JVM메모리상에 DB를 띄우는게 좋다. https://www.h2database.com/html/cheatSheet.html
+    #사실 스프링부트가 전부 알아서 세팅해주기때문에 여기파일의 내용은 전부 없어도 되지만, 참고로 하기위해 여기에 둔다.
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        # 이것도 모든 SQL로그를 보여주지만, system아웃으로 보여주기에 좋지 않다. 운영환경에서는 로그파일에 출력하도록 한다.
+        # show_sql: true
+        format_sql: true
+
+
+logging:
+  level:
+    #SQL로그를 로그파일에 출력.
+    org.hibernate.SQL: debug
+    #SQL파라메터를 ?이아닌 제대로된 로그로 출력.
+    # 더나은 SQL파라메터 출력을 위해서는 외부 라이브러리 사용.
+    # https://github.com/gavlyukovskiy/spring-boot-data-source-decorator
+    org.hibernate.type: trace
+
