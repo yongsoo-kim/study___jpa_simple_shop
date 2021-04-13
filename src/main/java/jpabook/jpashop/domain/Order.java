@@ -1,11 +1,16 @@
 package jpabook.jpashop.domain;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.persistence.FetchType.*;
+import static javax.persistence.FetchType.LAZY;
 
 //Loading type은 항상 LAZY 로 지정한다. EAGER로 할시 예측하기 힘든 문제가 발생할수 있다.
 //특히 JQPL같은 기술과 함께 사용할때, N+1같은 문제가 발생하기쉽다.
@@ -13,6 +18,8 @@ import static javax.persistence.FetchType.*;
 
 @Entity
 @Table(name = "orders")
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED) //생으로 new 로 생성금지한다. static메서드 써라는 의미. 코드는 항상 제약하는 스타일로 짜는게 좋다.(일관성.유지보수 용이)
 public class Order {
 
     @Id @GeneratedValue
@@ -57,6 +64,47 @@ public class Order {
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         delivery.setOrder(this);
+    }
+
+    //== 생성 메서드 ==//
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems){
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
+
+    //== 비지니스 로직 ==//
+    /**
+    * 주문취소
+    */
+    public void cancel() {
+        if (delivery.getStatus() == DeliveryStatus.COMP) {
+            throw new IllegalStateException("이미 배송 완료된 상품은 취소가 불가능합니다.");
+        }
+        this.setStatus(OrderStatus.CANCEL);
+        for (OrderItem orderItem: orderItems) {
+            orderItem.cancel();
+        }
+    }
+
+    //==조회 로직 ==//
+
+    /**
+     *
+     * 전체 주문 가격 조회
+     */
+    public int getTotalPrice(){
+        int totalPrice = 0;
+        for (OrderItem orderItem: orderItems) {
+            totalPrice+= orderItem.getTotalPrice();
+        }
+        return totalPrice;
     }
 
 
