@@ -2,11 +2,12 @@ server:
   port: 8081
 
 spring:
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/jpashop
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+  # IN-MEMORY의 H2를 이용하는 걸로 충분한다(적어도지금은.) 혹시라도 따로 DB세팅을 하고 싶을때는 아래를 참고.
+#  datasource:
+#    url: jdbc:h2:tcp://localhost/~/jpashop
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
